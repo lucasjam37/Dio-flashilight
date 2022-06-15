@@ -1,0 +1,339 @@
+aplicar plugin: "com.android.application"
+
+import com.android.build.OutputFile
+import org.apache.tools.ant.taskdefs.condition.Os
+
+/**
+ * O arquivo react.gradle registra uma tarefa para cada variante de compilação (por exemplo, bundleDebugJsAndAssets
+ * e bundleReleaseJsAndAssets).
+ * Estes basicamente chamam de 'pacote nativo de reação' com os argumentos corretos durante a compilação do Android
+ * ciclo. Por padrão, o bundleDebugJsAndAssets é ignorado, como no modo depuração/dev preferimos carregar o
+ * pacote diretamente do servidor de desenvolvimento. Abaixo você pode ver todas as configurações possíveis
+ * e seus padrões. Se você decidir adicionar um bloco de configuração, certifique-se de adicioná-lo antes do
+ * 'aplicar a partir de: ".. /.. /node_modules/react-native/react.gradle"' linha.
+ *
+ * project.ext.react = [
+ * // o nome do arquivo de ativos gerado contendo seu pacote JS
+ *   bundleAssetName: "index.android.bundle",
+ *
+ * // o arquivo de entrada para geração de pacotes. Se nenhum especificado e
+ * // "index.android.js" existe, ele será usado. Caso contrário, "índice.js" é
+ * // padrão. Pode ser substituído com ENTRY_FILE variável de ambiente.
+ * entradaFile: "index.android.js",
+ *
+ *   // https://reactnative.dev/docs/performance#enable-the-ram-format
+ * bundleComand: "ram-bundle",
+ *
+ * // se deve empacotar JS e ativos no modo de depuração
+ * bundleInDebug: falso,
+ *
+ * // se deve empacotar JS e ativos no modo de liberação
+ * bundleInRelease: verdade,
+ *
+ * // se empacotar JS e ativos em outra variante de compilação (se configurado).
+ * // Veja http://tools.android.com/tech-docs/new-build-system/user-guide#TOC-Build-Variants
+ * // A propriedade de configuração pode estar nos seguintes formatos
+ *   //         'bundleIn${productFlavor}${buildType}'
+ *   //         'bundleIn${buildType}'
+ * // bundleInFreeDebug: verdadeiro,
+ * // bundleInPaidRelease: verdadeiro,
+ * // bundleInBeta: verdade,
+ *
+ * // se desativar o modo dev em variantes personalizadas de compilação (por padrão apenas desativado na versão)
+ * // por exemplo: desativar o modo dev no tipo de compilação de encenação (se configurado)
+ * devDisabledInStaging: verdade,
+ * // A propriedade de configuração pode estar nos seguintes formatos
+ *   //         'devDisabledIn${productFlavor}${buildType}'
+ *   //         'devDisabledIn${buildType}'
+ *
+ * // a raiz do seu projeto, ou seja, onde "package.json" vive
+ * raiz: ".. /.. /",
+ *
+ * // onde colocar o ativo do pacote JS no modo de depuração
+ * jsBundleDirDebug: "$buildDir/intermediários/ativos/depuração",
+ *
+ * // onde colocar o ativo do pacote JS no modo de liberação
+ * jsBundleDirRelease: "$buildDir/intermediários/ativos/lançamento",
+ *
+ * // onde colocar recursos drawable / React Native assets, por exemplo, aqueles que você usa via
+ * // requer ('./image.png')), no modo depuração
+ * recursosDirDebug: "$buildDir/intermediários/res/fundido/depurar",
+ *
+ * // onde colocar recursos drawable / React Native assets, por exemplo, aqueles que você usa via
+ * // requer ('./image.png')), no modo de liberação
+ * recursosRelease: "$buildDir/intermediários/res/fundido/liberação",
+ *
+ * // por padrão as tarefas de gradle são ignoradas se nenhum dos arquivos JS ou ativos mudar; isso significa
+ * / / que nós não olhamos para arquivos em android / ou ios / para determinar se as tarefas estão até
+ * // data; se você tiver outras pastas que você deseja ignorar por razões de desempenho (gradle
+ * // indexa toda a árvore), adicione-as aqui. Alternativamente, se você tem arquivos JS no android/
+ * / / por exemplo, você pode querer removê-lo daqui.
+ * entradaExclui: ["android/**", "ios/**"],
+ *
+ * // substituir qual nó é chamado e com que argumentos adicionais
+ * nodeExecutableAndArgs: ["nó"],
+ *
+ * // fornecer argumentos adicionais ao empacotador
+ *   extraPackagerArgs: []
+ * ]
+ */
+
+projeto. ramal. reagir = [
+    habilitarHermes: falso, // limpar e reconstruir se mudar
+]
+
+aplicar a partir de: ".. /.. /node_modules/react-native/react.gradle"
+
+/**
+ * Defina isso como true para criar dois APKs separados em vez de um:
+ * - Um APK que só funciona em dispositivos ARM
+ * - Um APK que só funciona em dispositivos x86
+ * A vantagem é que o tamanho do APK é reduzido em cerca de 4MB.
+ * Carregue todos os APKs para a Play Store e as pessoas baixarão
+ * o correto com base na arquitetura da CPU de seu dispositivo.
+ */
+def habilitaSeparateBuildPerCPUArquittecture = falso
+
+/**
+ * Execute o Proguard para encolher o bytecode Java em compilações de versão.
+ */
+def habilitaProguardInReleaseBuilds = falso
+
+/**
+ * O sabor de compilação preferido do JavaScriptCore.
+ *
+ * Por exemplo, para usar a variante internacional, você pode usar:
+ * 'def jscFlavor = 'org.webkit:android-jsc-intl:+''
+ *
+ * A variante internacional inclui biblioteca de UTI i18n e dados necessários
+ * permitindo usar, por exemplo, 'Date.toLocaleString' e 'String.localeCompare' que
+ * dar resultados corretos ao usar com locais diferentes de en-US. Note que
+ * esta variante é cerca de 6MiB maior por arquitetura do que padrão.
+ */
+def jscFlavor = 'org.webkit:android-jsc:+'
+
+/**
+ * Para habilitar o VM Hermes.
+ *
+ * Isso deve ser definido em project.ext.react e esse valor será lido aqui. Se não está definido
+ * em project.ext.react, JavaScript não será compilado para Hermes Bytecode
+ * e os benefícios do uso de Hermes serão, portanto, drasticamente reduzidos.
+ */
+def habilitarHermes = projeto. ramal. reagir. obter ("habilitarHermes", falso);
+
+/**
+ * Arquiteturas para construir código nativo para.
+ */
+def reactNativeArchitectures() {
+    valor def = projeto. obterproperties(). obter ("reactNativeArchitectures")
+    valor de retorno ? valor. split(",): ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
+}
+
+andróide {
+ ndkVersion rootProject. ramal. ndkVersion
+
+ compilar rootProject da compilaçãoSdkVersion. ramal. compilarSdkVersion
+
+    defaultConfig {
+        applicationId "com.flashlight"
+ raiz minSdkVersionProject. ramal. versão minSdk
+ targetSdkVersion rootProject. ramal. targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+ buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled(). toString()
+
+        se (isNewArchitectureEnabled()) {
+            // Nós configuramos a compilação NDK somente se você decidir optar pela Nova Arquitetura.
+            externalNativeBuild {
+                ndkBuild {
+ argumentos "APP_PLATFORM=android-21","
+                        "APP_STL=c++_shared",
+                        "NDK_TOOLCHAIN_VERSION=clang",
+                        "GENERATED_SRC_DIR=$buildDir/gerado/fonte",
+                        "PROJECT_BUILD_DIR=$buildDir",
+                        "REACT_ANDROID_DIR=$rootDir/.. /node_modules/react-native/ReactAndroid",
+                        " REACT_ANDROID_BUILD_DIR=$rootDir/.. /node_modules/react-native/ReactAndroid/build"
+ cFlags "-Wall", "-Werror", "-fexceptions", "-frtti DWITH_INSPECTOR"
+                    cppFlags "-std=c++17"
+                    // Certifique-se de que este nome de destino é o mesmo que você especifica dentro do
+                    // arquivo src/main/jni/Android.mk para a variável 'LOCAL_MODULE'.
+ alvos "flashlight_appmodules"
+
+                    // Corrigir para limite de janelas no número de caracteres em caminhos de arquivo e em linhas de comando
+                    se (Os. isFamily(Os. FAMILY_WINDOWS)) {
+ argumentos "NDK_OUT=${rootProject.projectDir.getParent()}\\.cxx",
+                            " NDK_APP_SHORT_COMMANDS=verdade"
+                    }
+                }
+            }
+            se (! habilitarSeparateBuildPerCPUArquittecture) {
+                ndk {
+                    abiFilters (*reactNativeArchitectures())
+                }
+            }
+        }
+    }
+
+    se (isNewArchitectureEnabled()) {
+        // Nós configuramos a compilação NDK somente se você decidir optar pela Nova Arquitetura.
+        externalNativeBuild {
+            ndkBuild {
+ caminho "$projectDir/src/main/jni/Android.mk"
+            }
+        }
+        def reactAndroidProjectDir = projeto(':ReactAndroid'). projetoDir
+        pacote defReactNdkDebugLibs = tarefas. registro ("pacoteReactNdkDebugLibs", Copiar) {
+            dependsOn(":ReactAndroid:packageReactNdkDebugLibsForBuck")
+ de ("$reactAndroidProjectDir/src/main/jni/prebuilt/lib")
+ em("$buildDir/react-ndk/exported")
+        }
+        def packageReactNdkReleaseLibs = tarefas. registro("pacoteReactNdkReleaseLibs",, Copiar) {
+            dependsOn(":ReactAndroid:packageReactNdkReleaseLibsForBuck")
+ de ("$reactAndroidProjectDir/src/main/jni/prebuilt/lib")
+ em("$buildDir/react-ndk/exported")
+        }
+ pós-Dilúvio {
+            // Se você deseja adicionar um TurboModule personalizado ou componente localmente,
+            // você deve descompactá-lo.
+            // preBuild.dependsOn("generateCodegenArtifactsFromSchema")
+ préDebugBuild. dependeon (pacoteReactNdkDebugLibs)
+ préReleaseBuild. dependsOn (packageReactNdkReleaseLibs)
+
+            // Devido a um bug dentro da AGP, temos que definir explicitamente uma dependência
+            // entre as tarefas configuraçãoNdkBuild* e as tarefas pré-Build.
+            // Isso pode ser removido assim que isso for resolvido: https://issuetracker.google.com/issues/207403732
+ configurarNdkBuildRelease. dependeon (preReleaseBuild)
+ configurarNdkBuildDebug. dependeon (preDebugBuild)
+ reactNativeArchitectures(). cada { arquitetura ->
+ tarefas. findByName("configureNdkBuildDebug[${architecture}]"?. configurar {
+ dependeon ("preDebugBuild")
+                }
+ tarefas. findByName("configureNdkBuildRelease[${architecture}]"?. configurar {
+ dependsOn ("preReleaseBuild")
+                }
+            }
+        }
+    }
+
+    splits {
+        abi {
+            reset()
+ habilitarSeparateBuildPerCPUArquittecture
+ universalApk falso // Se verdadeiro, também gerar um APK universal
+ incluir (*reactNativeArchitectures())
+        }
+    }
+ assinaturaConfigs {
+ depuração {
+ arquivo storeFile ('debug.keystore')
+ armazenarPassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+
+ liberação {
+            se (projeto. temProperty ('MYAPP_UPLOAD_STORE_FILE')) {
+ armazenar Arquivo do arquivo (MYAPP_UPLOAD_STORE_FILE)
+ MYAPP_UPLOAD_STORE_PASSWORD storePassword
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+ MYAPP_UPLOAD_KEY_PASSWORD de palavras-chave
+            }
+        }
+    }
+    buildTypes {
+         release {
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            }
+ depuração { 
+ assinaturaConfig assinandoConfigs.release
+        }
+ liberação {
+            // Cuidado! Na produção, você precisa gerar seu próprio arquivo de armazenamento de chaves.
+            // veja https://reactnative.dev/docs/signed-apk-android.
+ assinaturaConfig assinandoConfigs. soltar
+ minifyEnabled habilitaProguardInReleaseBuilds
+ proguardFiles getDefaultProguardFile ("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+
+    // applicationVariants são, por exemplo, depuração, liberação
+ applicationVariants. todos { variante ->
+ variante. saídas. cada { saída ->
+            // Para cada APK separado por arquitetura, defina um código de versão único conforme descrito aqui:
+            // https://developer.android.com/studio/build/configure-apk-splits.html
+            // Exemplo: versionCode 1 vai gerar 1001 para armeabi-v7a, 1002 para x86, etc.
+            versão defCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
+            def abi = saída. obterFilter (OutputFile. ABI)
+            se (abi != nulo) { // nulo para as variantes de depuração universal, versão universal
+ saída. versionCodeOverride =
+ defaultConfig. versionCode * 1000 + versionCodes. get(abi)
+            }
+
+        }
+    }
+}
+
+Dependências {
+ arquivo de implementaçãoTree(dir: "libs", incluem: ["*.jar"])
+
+    //noinspection GradleDynamicVersion
+ implementação "com.facebook.react:react-native:+" // From node_modules
+
+ implementação "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+
+ depuraçãoImplementação("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
+ excluir grupo:'com.facebook.fbjni'
+    }
+
+ depuraçãoImplementação ("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
+ excluir grupo:'com.facebook.flipper'
+ excluir grupo:'com.squareup.okhttp3', módulo:'okhttp'
+    }
+
+    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
+ excluir grupo:'com.facebook.flipper'
+    }
+
+    se (ativarHermes) {
+        def hermesPath = ".. /.. /node_modules/hermes-engine/android/";
+ arquivos de depuração (hermesPath + "hermes-debug.aar")
+ liberar arquivos de implementação (hermesPath + "hermes-release.aar")
+    } mais {
+ implementação jscFlavor
+    }
+}
+
+se (isNewArchitectureEnabled()) {
+    // Se a nova arquitetura estiver habilitada, permitimos que você construa o RN a partir da fonte
+    // Caso contrário, recuamos para um prebuilt .aar empacotado no pacote NPM.
+    // Isso será aplicado a toda a dependência transtitiva importada.
+ configurações. todos {
+ resoluçãoStrategy. dependênciaSubstituição {
+ substituir (módulo("com.facebook.react:react-native"))
+ .usando (project(":ReactAndroid"). porque("Na nova arquitetura estamos construindo React Native from source")
+        }
+    }
+}
+
+// Execute isso uma vez para ser capaz de executar o aplicativo com BUCK
+// coloca todas as dependências de compilação em libs de pasta para buck usar
+cópia da tarefaDownloadableDepsToLibs(tipo: Copiar) {
+ a partir de configurações. implementação
+ em 'libs'
+}
+
+aplicar a partir de: arquivo(".. /.. /node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); aplicarNativeModulesAppBuildGradle(projeto)
+
+def isNewArchitectureEnabled() {
+    // Para optar pela Nova Arquitetura, você pode:
+    // - Definir 'newArchEnabled' como true dentro do arquivo 'gradle.properties'
+    // - Invocar gradle com '-newArchEnabled=true'
+    // - Definir uma variável de ambiente 'ORG_GRADLE_PROJECT_newArchEnabled=true'
+    projeto de retorno. temProperty ("newArchEnabled") && projeto. newArchEnabled == "true"
+
+}
+...
